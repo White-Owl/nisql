@@ -2,8 +2,10 @@
 #include <windows.h>
 #endif
 #include <iostream>
+#include "nanodbc/nanodbc.h"
 
 using namespace std;
+using namespace nanodbc;
 
 #ifdef __MAIN__
 #define EXTERN
