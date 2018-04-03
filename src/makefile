@@ -2,8 +2,6 @@ PRJ=nisql
 SRC=main.cpp read_arguments.cpp
 OBJ=$(SRC:.cpp=.o)
 
-LIBS=nanodbc/nanodbc.o
-
 ifeq ($(OS),Windows_NT)
 	PRJ := $(PRJ).exe
 	LIBS += -lodbc32
@@ -13,7 +11,7 @@ endif
 
 all: $(PRJ)
 
-$(PRJ) : $(OBJ)
+$(PRJ) : $(OBJ) nanodbc/nanodbc.o
 	g++ -o $@ $^ $(LIBS)
 
 %.o : %.cpp

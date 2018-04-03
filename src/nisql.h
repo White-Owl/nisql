@@ -2,6 +2,7 @@
 #include <windows.h>
 #endif
 #include <iostream>
+#include <fstream>
 #include "nanodbc/nanodbc.h"
 
 using namespace std;

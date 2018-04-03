@@ -1681,6 +1681,23 @@ public:
         result result_;
     };
 
+    /// \brief Result set for a list of procedures in the data source.
+    class procedures
+    {
+    public:
+        bool next();                      ///< Move to the next result in the result set.
+        string procedure_catalog() const; ///< Fetch procedure catalog.
+        string procedure_schema() const;  ///< Fetch procedure schema.
+        string procedure_name() const;    ///< Fetch procedure name.
+        string procedure_remarks() const; ///< Fetch procedure remarks.
+        string procedure_type() const;    ///< Fetch procedure type.
+
+    private:
+        friend class nanodbc::catalog;
+        procedures(result& find_result);
+        result result_;
+    };
+
     /// \brief Creates catalog operating on database accessible through the specified connection.
     explicit catalog(connection& conn);
 
@@ -1742,6 +1759,18 @@ public:
     /// Empty string argument is equivalent to passing the search pattern '%'.
     catalog::primary_keys find_primary_keys(
         const string& table,
+        const string& schema = string(),
+        const string& catalog = string());
+
+    /// \brief Creates result set with catalogs, schemas, procedures, for procedure types.
+    ///
+    /// Procedure information is obtained by executing `SQLprocedures` function within
+    /// scope of the connected database accessible with the specified connection.
+    ///
+    /// All arguments are treated as the Pattern Value Arguments.
+    /// Empty string argument is equivalent to passing the search pattern '%'.
+    catalog::procedures find_procedures(
+        const string& procedure = string(),
         const string& schema = string(),
         const string& catalog = string());
 

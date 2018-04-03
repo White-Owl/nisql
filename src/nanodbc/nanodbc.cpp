@@ -4281,6 +4281,51 @@ catalog::catalog(connection& conn)
 {
 }
 
+catalog::procedures::procedures(result& find_result)
+    : result_(find_result)
+{
+}
+
+bool catalog::procedures::next()
+{
+    return result_.next();
+}
+
+string catalog::procedures::procedure_catalog() const
+{
+    // PROCEDURE_CAT might be NULL
+    return result_.get<string>(0, string());
+}
+
+string catalog::procedures::procedure_schema() const
+{
+    // PROCEDURE_SCHEM might be NULL
+    return result_.get<string>(1, string());
+}
+
+string catalog::procedures::procedure_name() const
+{
+    // PROCEDURE_NAME column is never NULL
+    return result_.get<string>(2);
+}
+
+string catalog::procedures::procedure_type() const
+{
+    // PROCEDURE_TYPE column is never NULL
+    // It can be:
+    //   SQL_PT_UNKNOWN    0
+    //   SQL_PT_PROCEDURE  1
+    //   SQL_PT_FUNCTION   2
+    static vector<string> function_types{"UNKNOWN", "PROCEDURE", "FUNCTION"};
+    return function_types[result_.get<short>(7)];
+}
+
+string catalog::procedures::procedure_remarks() const
+{
+    // REMARKS might be NULL
+    return result_.get<string>(6, string());
+}
+
 catalog::tables catalog::find_tables(
     const string& table,
     const string& type,
@@ -4391,6 +4436,37 @@ catalog::find_primary_keys(const string& table, const string& schema, const stri
 
     result find_result(stmt, 1);
     return catalog::primary_keys(find_result);
+}
+
+catalog::procedures catalog::find_procedures(
+    const string& procedure,
+    const string& schema,
+    const string& catalog)
+{
+    // Passing a null pointer to a search pattern argument does not
+    // constrain the search for that argument; that is, a null pointer and
+    // the search pattern % (any characters) are equivalent.
+    // However, a zero-length search pattern - that is, a valid pointer to
+    // a string of length zero - matches only the empty string ("").
+    // See https://msdn.microsoft.com/en-us/library/ms710171.aspx
+
+    statement stmt(conn_);
+    RETCODE rc;
+    NANODBC_CALL_RC(
+        NANODBC_FUNC(SQLProcedures),
+        rc,
+        stmt.native_statement_handle(),
+        (NANODBC_SQLCHAR*)(catalog.empty() ? nullptr : catalog.c_str()),
+        (catalog.empty() ? 0 : SQL_NTS),
+        (NANODBC_SQLCHAR*)(schema.empty() ? nullptr : schema.c_str()),
+        (schema.empty() ? 0 : SQL_NTS),
+        (NANODBC_SQLCHAR*)(procedure.empty() ? nullptr : procedure.c_str()),
+        (procedure.empty() ? 0 : SQL_NTS));
+    if (!success(rc))
+        NANODBC_THROW_DATABASE_ERROR(stmt.native_statement_handle(), SQL_HANDLE_STMT);
+
+    result find_result(stmt, 1);
+    return catalog::procedures(find_result);
 }
 
 std::list<string> catalog::list_catalogs()

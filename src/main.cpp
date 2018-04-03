@@ -3,11 +3,84 @@
 
 
 int main(int argc, char **argv) {
+	/// read command-line arguments and put them into
+	/// several global variables
 	if(! read_arguments(argc, argv) ) return 1;
 
-    try {
+	string sql_query; // buffer for the real query
+	try {
+		/// open connection to the database
+		/// if failed - it will throw an exception
         connection conn(connection_string);
-        result row = execute(
+
+		/// decipher what is requested
+		if( requested_query.size()>4 && requested_query.compare(requested_query.size()-4, 4, ".sql")==0 ) {
+			/// Check if requested query is a .sql script - read it
+			ifstream sql_script(requested_query, ios::binary | ios::ate);
+			auto script_size = sql_script.tellg();
+			sql_query.reserve(script_size);
+			sql_script.seekg(0);
+			sql_script.read(&(sql_query[0]), script_size);
+		} else {
+			/// The requested query was not .sql script.
+			/// Search the requested string in catalogues
+			catalog cat(conn);
+
+			/// many databases can address object by up to three pieces which
+			/// are translated in ODBC into catalog.schema.name
+			string catalog_name, schema_name, object_name;
+			/// so before scanning catalogs we need to split the requested
+			/// query into those pieces
+			auto rpos = requested_query.size();
+			do {
+				auto pos = requested_query.rfind('.', --rpos);
+				if(object_name.empty()) {
+					object_name = requested_query.substr(pos+1, rpos-pos);
+				} else if(schema_name.empty()) {
+					schema_name = requested_query.substr(pos+1, rpos-pos);
+				} else {
+					catalog_name = requested_query.substr(pos+1, rpos-pos);
+				}
+				rpos = pos;
+			} while (rpos != string::npos);
+			if(verbose) cout << "Searching for " <<catalog_name<<'.'<<schema_name<<'.'<<object_name<<"\n";
+
+			auto tab = cat.find_tables(object_name, string(), schema_name, catalog_name);
+			if(tab.next()) {
+				/// sucessfuly found a table or view
+				sql_query = "select * from " + requested_query;
+				if(verbose) cout << "Found in TABLES: "<< tab.table_catalog() << '.' << tab.table_schema() << '.' << tab.table_name() << ' ' << tab.table_type() << "\n";
+			}
+
+
+			if(sql_query.empty()) {
+				/// we did not find the object in tables or views
+				/// check the list of procerures
+				auto proc = cat.find_procedures(object_name, schema_name, catalog_name);
+cout << "find_procedures()\n";
+				if (proc.next()) {
+cout << "proc.next() succeeded\n";
+					/// sucessfuly found a table or view
+					sql_query = "execute " + requested_query;
+cout << proc.procedure_catalog() << "\n";
+cout << proc.procedure_schema() << "\n";
+cout << proc.procedure_name() << "\n";
+					if(verbose) cout << "Found in PROCEDURES: "<< proc.procedure_catalog() << '.' << proc.procedure_schema() << '.' << proc.procedure_name() << ' ' << proc.procedure_type() << "\n";
+				}
+			}
+		}
+
+		if(sql_query.empty()) {
+			/// we did not find the text from requested_query in database
+			/// catalogues of objects.
+			/// It is also not a script file. Therefore, assume it to be
+			/// a direct query.
+			sql_query = requested_query;
+		}
+
+		cout << "Actual query is:\n" << sql_query << "\n";
+
+/*        result row = execute(
             conn,
             NANODBC_TEXT("SELECT CustomerID, ContactName, Phone"
                          "   FROM CUSTOMERS"
@@ -17,8 +90,7 @@ int main(int argc, char **argv) {
             cout << i << " :"
                  << row.get<nanodbc::string>(0) << " "
                  << row.get<nanodbc::string>(1) << " "
-                 << row.get<nanodbc::string>(2) << " " << endl;
-        }
+                 << row.get<nanodbc::string>(2) << " " << endl;*/
         return EXIT_SUCCESS;
     }
     catch (runtime_error const& e) {
