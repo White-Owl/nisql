@@ -39,4 +39,14 @@ such stored procedure - we fail with a strange error:
 The datatype -25 is a SQL_C_SBIGINT. But there is not a single 'big int'
 field nowhere in the description of SQLProcedure()?!
 
-Lets try running the last version of NISQL against MS SQL...
+Lets try running the last version of NISQL against MS SQL... Success! Not
+a single problem.
+
+Conclusion: Stored procedure discovery is written correctly. The bug is
+in Oracle's ODBC driver... Oh well... Oracle's SPs are not usually used to
+provide resultsets anyway. So for now we can leave this problem as is. We
+can later try updating the Oracle's ODBC driver, or just call Oracle's
+procedures directly through full sql syntax (or from the scripts).
+
+Time to go to the printer classes (which would work with the actual
+resultsets).
