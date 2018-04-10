@@ -2,7 +2,7 @@ Proposal for final project for class COMS W4995 Design Using C++
 Spring 2018
 
 Students:
-George Brink, gb2280
+George Brink, gb2641
 Rachel Winsho Wu, rww2115
 Amanuel Lemenih, aml2303
 
