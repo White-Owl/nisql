@@ -3,15 +3,18 @@
 
 
 int main(int argc, char **argv) {
-	/// read command-line arguments and put them into
-	/// several global variables
-	if(! read_arguments(argc, argv) ) return 1;
-
-	string sql_query; // buffer for the real query
 	try {
+		/// read command-line arguments and put them into
+		/// several global variables
+		if(! read_arguments(argc, argv) ) return 1;
+		if(verbose) for(auto const& kv : options) {
+			cout << kv.first << " = " << kv.second << "\n";
+		}
+
+		string sql_query; // buffer for the real query
 		/// open connection to the database
 		/// if failed - it will throw an exception
-        connection conn(connection_string);
+		connection conn(connection_string);
 
 		/// decipher what is requested
 		if( requested_query.size()>4 && requested_query.compare(requested_query.size()-4, 4, ".sql")==0 ) {
@@ -49,7 +52,11 @@ int main(int argc, char **argv) {
 			if(tab.next()) {
 				/// sucessfuly found a table or view
 				sql_query = "select * from " + requested_query;
-				if(verbose) cout << "Found in TABLES: "<< tab.table_catalog() << '.' << tab.table_schema() << '.' << tab.table_name() << ' ' << tab.table_type() << "\n";
+				if(verbose) cout << "Found in TABLES: "
+				                 << tab.table_catalog() << '.'
+				                 << tab.table_schema() << '.'
+				                 << tab.table_name() << ' '
+				                 << tab.table_type() << "\n";
 			}
 
 
@@ -57,15 +64,14 @@ int main(int argc, char **argv) {
 				/// we did not find the object in tables or views
 				/// check the list of procerures
 				auto proc = cat.find_procedures(object_name, schema_name, catalog_name);
-cout << "find_procedures()\n";
 				if (proc.next()) {
-cout << "proc.next() succeeded\n";
 					/// sucessfuly found a table or view
 					sql_query = "execute " + requested_query;
-cout << proc.procedure_catalog() << "\n";
-cout << proc.procedure_schema() << "\n";
-cout << proc.procedure_name() << "\n";
-					if(verbose) cout << "Found in PROCEDURES: "<< proc.procedure_catalog() << '.' << proc.procedure_schema() << '.' << proc.procedure_name() << ' ' << proc.procedure_type() << "\n";
+					if(verbose) cout << "Found in PROCEDURES: "
+				                         << proc.procedure_catalog() << '.'
+					                 << proc.procedure_schema() << '.'
+					                 << proc.procedure_name() << ' '
+					                 << proc.procedure_type() << "\n";
 				}
 			}
 		}
@@ -78,7 +84,20 @@ cout << proc.procedure_name() << "\n";
 			sql_query = requested_query;
 		}
 
-		cout << "Actual query is:\n" << sql_query << "\n";
+		if(verbose) cout << "Actual query is:\n" << sql_query << "\n";
+
+		result first_row = execute( conn, sql_query );
+
+		string extention = output_file_name.substr(output_file_name.size()-4,4);
+		if(extention == ".txt") {
+			print_result_as_txt(first_row);
+/*		} else if(extention == ".csv") {
+			print_result_as_csv(first_row);
+		} else if(extention == ".xml") {
+			print_result_as_xml(first_row);
+		} else if(extention == ".json") {
+			print_result_as_json(first_row); */
+		}
 
 /*        result row = execute(
             conn,

@@ -63,7 +63,7 @@ bool read_arguments(int argc, char **argv) {
 					show_usage();
 					return false;
 				}
-				format_options = parameter_value;
+				decript_format_options( parameter_value );
 				break;
 			default:
 				cerr << "Unkown key -" << key << "\n";

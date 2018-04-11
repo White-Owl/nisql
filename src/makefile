@@ -1,12 +1,17 @@
 PRJ=nisql
-SRC=main.cpp read_arguments.cpp
+SRC=main.cpp read_arguments.cpp decript_format_options.cpp \
+    print_result_as_txt.cpp
+
 OBJ=$(SRC:.cpp=.o)
 
 ifeq ($(OS),Windows_NT)
 	PRJ := $(PRJ).exe
 	LIBS += -lodbc32
 else
-	LIBS += $(shell odbc_config --libs)
+	LIBS += -lodbc
+
+	# use next line if you are on Red Hat
+	#LIBS += $(shell odbc_config --libs)
 endif
 
 all: $(PRJ)
