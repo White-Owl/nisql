@@ -19,11 +19,17 @@ int main(int argc, char **argv) {
 		/// decipher what is requested
 		if( requested_query.size()>4 && requested_query.compare(requested_query.size()-4, 4, ".sql")==0 ) {
 			/// Check if requested query is a .sql script - read it
-			ifstream sql_script(requested_query, ios::binary | ios::ate);
-			auto script_size = sql_script.tellg();
-			sql_query.reserve(script_size);
-			sql_script.seekg(0);
-			sql_script.read(&(sql_query[0]), script_size);
+			ifstream sql_script(requested_query);
+			if(sql_script.fail()) {
+				cerr << "Error reading " << requested_query << ": " << strerror(errno) << "\n";
+				return EXIT_FAILURE;
+			}
+			string line;
+			while(sql_script) {
+				getline(sql_script, line);
+				sql_query += line;
+			}
+			sql_script.close();
 		} else {
 			/// The requested query was not .sql script.
 			/// Search the requested string in catalogues

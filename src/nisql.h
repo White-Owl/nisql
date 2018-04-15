@@ -3,9 +3,13 @@
 #endif
 #include <iostream>
 #include <fstream>
+#include <sstream>
 #include <iomanip>
 #include <locale>
 #include <map>
+#include <queue>
+#include <algorithm>
+#include <cstring>
 #include <sql.h>
 #include "nanodbc/nanodbc.h"
 
@@ -27,6 +31,7 @@ EXTERN map<string,string> options;
 
 bool read_arguments(int argc, char **argv);
 void decript_format_options(const string&);
+bool is_format_option_on(const string &key);
 
 void print_result_as_txt(nanodbc::result &);
 void print_result_as_csv(nanodbc::result &);
