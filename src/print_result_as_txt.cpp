@@ -59,6 +59,5 @@ void print_result_as_txt(result &row) {
 
 		file_count++;
 	} while (row.next_result());
-	if(verbose) cout << "Done\n";
 }
 

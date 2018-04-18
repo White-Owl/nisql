@@ -94,35 +94,25 @@ int main(int argc, char **argv) {
 
 		result first_row = execute( conn, sql_query );
 
-		string extention = output_file_name.substr(output_file_name.size()-4,4);
+		auto dot_pos = output_file_name.rfind('.');
+		string extention = output_file_name.substr(dot_pos, output_file_name.size()-dot_pos);
 		if(extention == ".txt") {
 			print_result_as_txt(first_row);
 /*		} else if(extention == ".csv") {
-			print_result_as_csv(first_row);
+			print_result_as_csv(first_row);*/
 		} else if(extention == ".xml") {
 			print_result_as_xml(first_row);
 		} else if(extention == ".json") {
-			print_result_as_json(first_row); */
+			print_result_as_json(first_row); 
+		} else {
+			cerr << "Requested extention " << extention << " not recongized.\n";
+			return EXIT_FAILURE;
 		}
 
-/*        result row = execute(
-            conn,
-            NANODBC_TEXT("SELECT CustomerID, ContactName, Phone"
-                         "   FROM CUSTOMERS"
-                         "   ORDER BY 2, 1, 3"));
-
-        for (int i = 1; row.next(); ++i) {
-            cout << i << " :"
-                 << row.get<nanodbc::string>(0) << " "
-                 << row.get<nanodbc::string>(1) << " "
-                 << row.get<nanodbc::string>(2) << " " << endl;*/
-        return EXIT_SUCCESS;
-    }
-    catch (runtime_error const& e) {
-        cerr << e.what() << endl;
-    }
-    return EXIT_FAILURE;
-
-
-//	return 0;
+ 		if(verbose) cout << "Done\n";
+		return EXIT_SUCCESS;
+	} catch (runtime_error const& e) {
+		cerr << e.what() << endl;
+	}
+	return EXIT_FAILURE;
 }
