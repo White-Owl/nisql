@@ -1,6 +1,7 @@
 PRJ=nisql
 SRC=main.cpp read_arguments.cpp decript_format_options.cpp \
-    print_result_as_txt.cpp print_result_as_xml.cpp print_result_as_json.cpp
+    print_result_as_txt.cpp print_result_as_csv.cpp \
+    print_result_as_xml.cpp print_result_as_json.cpp
 
 OBJ=$(SRC:.cpp=.o)
 

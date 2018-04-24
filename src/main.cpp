@@ -98,8 +98,8 @@ int main(int argc, char **argv) {
 		string extention = output_file_name.substr(dot_pos, output_file_name.size()-dot_pos);
 		if(extention == ".txt") {
 			print_result_as_txt(first_row);
-/*		} else if(extention == ".csv") {
-			print_result_as_csv(first_row);*/
+		} else if(extention == ".csv") {
+			print_result_as_csv(first_row);
 		} else if(extention == ".xml") {
 			print_result_as_xml(first_row);
 		} else if(extention == ".json") {
