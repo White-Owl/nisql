@@ -4,7 +4,11 @@ void print_result_as_csv(result& row)
 {
 	queue<string> file_names;
 	string delim = options["DELIM"];
-	if(delim.empty()) delim = ",";
+	if(delim.empty()) {
+		delim = ",";
+	} else if(delim == "\\t") {
+		delim = "\t";
+	}
 	bool should_quote = is_format_option_on("QUOTE");
 
 	file_names.push(output_file_name);

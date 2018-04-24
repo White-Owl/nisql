@@ -9,4 +9,5 @@ src/nisql $conn "$q2" out2.txt -v
 
 src/nisql $conn "$q1" out1.csv -v -f"hdr=1"
 src/nisql $conn "$q2" out2.csv -v
+src/nisql $conn "$q1" out3.csv -v -f"delim=\t"
 
