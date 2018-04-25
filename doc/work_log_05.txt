@@ -1,0 +1,22 @@
+------------- Day 05
+ Well... Despite of the title "Day 5" it was several weeks.
+
+ The support for other options for TXT was written without a single problem.
+
+ The testing of multi-set printout did pose some strange and unexpected problem
+that MySQL used as main RDBMS at that point, does not provide multi-set results
+by default. It took a few hours of documentation searching and googling various
+keywords to find a magical "OPTION=67108864" which have to be used in ODBC
+connection string for MySQL to be able to work with multiple select scripts.
+
+ And then support for other formats was supposed to be written by other team
+members...
+ In the meantime, adding Documentation and Tutorial on github wiki. Not really
+a challenge, but an extremely time consuming task.
+
+ And finally it was done! Some minor tweaks for JSON, a big rewrite for XML,
+mild rewrite for CSV. But in the end, the version 1.0 is ready for user
+testing.
+
+ Time to format the Presentation and convert wiki documents into PDF for
+submission.
