@@ -1,0 +1,52 @@
+------------- Day 03
+Connection to database using nanodbc's connection class and the first
+command-line argument - done. Works from the first try.
+
+Lets decipher the second command-line argument: the query.
+
+If the query ends with ".sql" then assume this is a script - read the file
+into string object - done. No problems here. That code could be copied from
+any textbook on C++.
+
+If the requested query is actually a name of the object in DB then we need to
+use the ODBC's catalog functions. And nanodbc has such functions... oops, it
+does have a wrapper for SQLTables(), but there is no wrapper for
+SQLProcedures(). And the responce from the nanodbc maintainer? "You know how
+to write such wrapper? Do it." https://github.com/nanodbc/nanodbc/issues/167
+
+Ok. First we can write a discovery code for, "is the command-line argument a
+name of the table?". - done. And it works fine for Oracle. But does not for
+MS SQL - the problem is: in Oracle we usually define just the name of the
+table, while in MS SQL we have a three-part names (database.owner.table)
+with the first two parts are optional and thier requirment depends on how
+the ODBC DSN is setup and how the user who connects through that DSN is
+setup... The solution is to make use of ODBC's 'schema' and 'catalog'.
+The 'schema' correlates with Oracle's schema and MSSQL's owner. The 'catalog'
+is ignored on Oracle, but plays a role of database on MS SQL.
+
+Done. Discovery of tables (and views) works perfectly. Now to stored
+procedures...
+
+It takes some time find all places in nanodbc.h and nanodbc.cpp where we
+should write a wrapper over SQLProcedures() in nanodbc style. But no major
+problems. And usage of this new function in NISQL is pretty simple and
+almost copy-pasted from the piece which works with tables.
+
+And it does not work on Oracle! If the object is not found in the list of
+stored procedures registered in database, then it is fine. But if there is
+such stored procedure - we fail with a strange error:
+  nanodbc.cpp:2591: HY004: [Oracle][ODBC]Invalid SQL data type <-25>.
+The datatype -25 is a SQL_C_SBIGINT. But there is not a single 'big int'
+field nowhere in the description of SQLProcedure()?!
+
+Lets try running the last version of NISQL against MS SQL... Success! Not
+a single problem.
+
+Conclusion: Stored procedure discovery is written correctly. The bug is
+in Oracle's ODBC driver... Oh well... Oracle's SPs are not usually used to
+provide resultsets anyway. So for now we can leave this problem as is. We
+can later try updating the Oracle's ODBC driver, or just call Oracle's
+procedures directly through full sql syntax (or from the scripts).
+
+Time to go to the printer classes (which would work with the actual
+resultsets).

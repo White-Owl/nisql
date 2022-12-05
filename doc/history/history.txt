@@ -1,0 +1,23 @@
+## The Origin
+
+   The nisql was born as a class project for class "COMS 4995 W DESIGN
+USING C++". In Spring of 2018, Columbia University.
+
+   At the time of nisql's inception, I already had another tool `export2csv`
+which was written in C and had ability to export to CSV format only. It was
+used for several years and proved very convenient. So then Professor gave an
+assignment "something good in C++", I immediately jumped with a proposal to
+expand on `export2csv` and make a similar tools but with multiple output
+formats.
+
+   Students were requested to keep a diary on project progression, so we
+have it.
+
+   And after a few years of actual use and several years of dormancy (no
+direct database usage on a new job) I decided to publish the project to
+public. So the oficial history begins now:
+
+## v 1.0
+Ready for public use.
+
+
